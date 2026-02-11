@@ -81,6 +81,26 @@ public:
 
 
 
+//hash table//
+struct hashNode{
+    string key;//username
+    hashNode* next;
+    User* userPtr;
+    hashNode(string k, User* ptr);
+};
+class hashTable{
+private:
+    static const int TableSize=103;
+    hashNode* table[TableSize];
+
+    int hashIndex(string key);
+public:
+    hashTable();
+    ~hashTable();
+    void insert(string key , User* user);
+    User* search(string key);
+}
+
 
 
 

@@ -146,3 +146,34 @@ Car* AVLTree::search(AVLNode* root,string key){
     if(root->key<key) return search(root->right,key);
     if (key<root->key) return search(root->left, key);
 }
+
+
+
+//hash table//
+
+hashNode::hashNode(string k, User* ptr) : key(k), userPtr(ptr), next(nullptr){}
+
+hashTable::hashTable(){
+    for(int i=0 ; i<TableSize ; i++){
+        table[i]=nullptr;
+    }
+}
+int hashTable::hashIndex(string key){
+    return hashString(key) % TableSize;
+}
+void hashTable::insert(string key , User* user){
+    hashNode* newNode=new hashNode(key, user);
+    newNode->next=table[hashIndex(key)];
+    table[hashIndex(key)]=newNode;
+}
+User* hashTable::search(string key){
+    int index=hashIndex(key);
+    hashNode* temp=table[index];
+    while(!temp){
+        if(temp->key == key){
+            return temp->userPtr;
+        }
+        temp=temp->next;
+    }
+    return nullptr;
+}
