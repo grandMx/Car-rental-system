@@ -1,5 +1,7 @@
 #include "DataStructures.h"
 
+//heap//
+
 ReservationQueue::ReservationQueue(){
     capacity=15;
     size=0;
@@ -61,4 +63,86 @@ Reservation ReservationQueue::pop(){
 Reservation ReservationQueue::prior() {
     if (size==0) return Reservation({{0,0,0},"",0});
     return arr[0];
+}
+
+
+
+
+//AVL//
+
+AVLNode::AVLNode(string k, Car* c) : key(k), carPtr(c), left(nullptr), right(nullptr), height(1) {}
+AVLTree::AVLTree() : root(nullptr) {}
+int AVLTree::height(AVLNode* node){
+    if(node==nullptr) return 0;
+    return node->height;
+}
+int AVLTree::max(int a, int b){
+    if(a<b) return b;
+    else return a;
+}
+AVLNode* AVLTree::rightRotate(AVLNode* n){
+    AVLNode* x=n->left;
+    AVLNode* y=x->right;
+    x->right=n;
+    n->left=y;
+    y->height=max(height(y->left),height(y->right))+1;
+    x->height=max(height(x->left),height(x->right))+1;
+    return x;
+}
+AVLNode* AVLTree::leftRotate(AVLNode* n){
+    AVLNode* y=n->right;
+    AVLNode* x=y->left;
+    y->left=n;
+    n->right=x;
+    n->height=max(height(n->left),height(n->right))+1;
+    y->height=max(height(y->left),height(y->right))+1;
+    return y;
+}
+int AVLTree::getBalance(AVLNode* N){
+    if (N==nullptr) return 0;
+    return height(N->left)-height(N->right);
+}
+void AVLTree::insert(string key, Car* car) {
+    root=insert(root, key, car); 
+}
+AVLNode* AVLTree::insert(AVLNode* node, string key, Car* car){
+    if(node==nullptr) return new AVLNode(key,car);
+    if(key<node->key){
+        node->left=insert(node->left,key,car);
+    }
+    else if(key>node->key){
+        node->right=insert(node->right, key, car);
+    }
+    else return node;    
+    node->height = 1 + max(height(node->left),height(node->right));
+    int balance=getBalance(node);
+    if(balance>1){
+        if(key>node->left->key){
+            node->left=leftRotate(node->left);
+            return rightRotate(node);
+        }
+        else{
+            return rightRotate(node);
+        }
+    }
+    if(balance<-1){
+        if(key<node->right->key){
+            node->right=rightRotate(node->right);
+            return leftRotate(node);
+        }
+        else{
+            return leftRotate(node);
+        }
+    }
+    return node;
+}
+
+Car* AVLTree::search(string key){ 
+    return search(root,key); 
+}
+Car* AVLTree::search(AVLNode* root,string key){
+    if(root->key==key) return root->carPtr;
+    if (root==nullptr) return nullptr;
+    if(root->key<key) return search(root->right,key);
+    if (key<root->key) return search(root->left, key);
 }
