@@ -20,12 +20,12 @@ public:
     void addCar(string company , string model, double price);
     void carListPrinter();
     void searchCarByModel(string model); // with AVL
-    void carFiltering(); 
+    void carFiltering(string flterCompany, double maxPrice); 
     //staff works
-    void processReservation(string model);
-    void returnCar(string model);
+    void processReservation(string model); //giving the car and set the car returns date
+    void returnCar(string model); // return car and calculate penalty
 
-    void availableCars();
+    void showAvailableCarsAndReserve();
 
 
 };

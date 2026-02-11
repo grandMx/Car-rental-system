@@ -10,12 +10,17 @@ std::string Date::toStr(){
 bool Date::operator>(Date& other){
     return toInt() > other.toInt();
 }
+ul Date::dateToDays(){
+    return year * 365 + month * 30 + day;
+}
 
 
 User::User(std::string u , std::string p , Role r) : userName(u),passHash(hashString(p)),userRole(r),balance(0.0) {};
 
 Car::Car(int i,std::string c,std::string m,double p) : id(i),company(c),model(m),pricePerDay(p),status(AVAILABLE){
     Reservations=new ReservationQueue();
+    currentRenter="";
+    dueReturnDate={0,0,0};
 }
 Car::~Car(){
     delete Reservations;

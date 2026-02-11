@@ -15,6 +15,7 @@ struct Date{
     int year,month,day;
     int toInt();
     std::string toStr();
+    ul dateToDays();
 
     bool operator>(Date& other);
 };
@@ -35,6 +36,8 @@ struct Car{
     double pricePerDay;
     CarStatus status;
     ReservationQueue* Reservations; // صف رزرو های مربوط به هر ماشین
+    string currentRenter;
+    Date dueReturnDate; // تاریخی که یارو باید ماشین رو تحویل بده
 
     std::string getStatusStr();
     Car(int i,std::string c,std::string m,double p);
