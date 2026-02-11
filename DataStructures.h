@@ -99,7 +99,7 @@ public:
     ~hashTable();
     void insert(string key , User* user);
     User* search(string key);
-}
+};
 
 
 

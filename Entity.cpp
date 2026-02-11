@@ -12,7 +12,7 @@ bool Date::operator>(Date& other){
 }
 
 
-User::User(std::string u , std::string p , Role r) : userName(u),passHash(p),userRole(r),balance(0.0) {};
+User::User(std::string u , std::string p , Role r) : userName(u),passHash(hashString(p)),userRole(r),balance(0.0) {};
 
 Car::Car(int i,std::string c,std::string m,double p) : id(i),company(c),model(m),pricePerDay(p),status(AVAILABLE){
     Reservations=new ReservationQueue();
