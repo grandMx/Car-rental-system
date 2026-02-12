@@ -3,9 +3,9 @@
 #include <iomanip>
 
 CarRentalSystem::CarRentalSystem() : idCounter(1), currentUser(nullptr){
-    signUp("admin","admin",STAFF);
+    signUp("admin","admin",MANAGER);
 }
-void CarRentalSystem::signUp(string userName, string pass, Role role=CUSTOMER){
+void CarRentalSystem::signUp(string userName, string pass, Role role){
     if(table.search(userName) != nullptr){
         cout<<"userName exists, choose another."<<endl;
         return;
@@ -16,6 +16,10 @@ void CarRentalSystem::signUp(string userName, string pass, Role role=CUSTOMER){
     cout<<"Registeration was successful!"<<endl;
 }
 void CarRentalSystem::login(string userName, string pass){
+    if(currentUser!=nullptr){
+        cout<<"How many times you want to login baby??"<<endl;
+        return;
+    }
     User* user=table.search(userName);
     if(user!=nullptr && user->passHash==hashString(pass)){
         currentUser=user;
@@ -25,8 +29,13 @@ void CarRentalSystem::login(string userName, string pass){
     cout<<"login failed!\n";
 }
 void CarRentalSystem::logOut(){
-    cout<<currentUser->userName<<" logged out"<<endl;
-    currentUser=nullptr;
+    if(currentUser!=nullptr){
+        cout<<currentUser->userName<<" logged out"<<endl;
+        currentUser=nullptr;
+        return;
+    }
+    cout<<"Error: No user is logged in to log out!!!"<<endl;
+    
 }
 
 void CarRentalSystem::addCar(string company , string model, double price){
@@ -40,6 +49,10 @@ void CarRentalSystem::addCar(string company , string model, double price){
     cout<<"car added successfully!"<<endl;
 }
 void CarRentalSystem::carFiltering(string filterCompany, double maxPrice){ //traversiing on carList
+    if(currentUser==nullptr){
+        cout<<"Login first!"<<endl;
+        return;
+    }
     Node<Car>* temp=carList.head;
     cout<<"\nFilter Result:\n";
     cout<<left<<setw(5)<<"ID"<<setw(15)<<"Make"<<setw(15)<<"Model"<<setw(10)<<"Price"<<"Status"<<endl;
@@ -60,6 +73,10 @@ void CarRentalSystem::carListPrinter(){
     carFiltering("*",-99); // each one is filter remover
 }
 void CarRentalSystem::searchCarByModel(string model){ // with AVl
+    if(currentUser==nullptr){
+        cout<<"Login first!"<<endl;
+        return;
+    }
     Car* temp=carIndexes.search(model);
     if(temp){
         cout<<"car found: "<<temp->company<<" "<<temp->model<<" "<<temp->getStatusStr()<<"\n";
@@ -95,7 +112,12 @@ void CarRentalSystem::showAvailableCarsAndReserve(){
 
     int Startdate,dur;
     cout<<"Start Date (YYYYMMDD): "; 
-    cin>>Startdate;
+    if(!(cin>>Startdate)){
+        cout<<"Error: Invalid date format!\n";
+        cin.clear(); 
+        cin.ignore(10000,'\n');
+        return;
+    }
     cout<<"Duration(Days): "; 
     cin>>dur;
 
@@ -107,7 +129,10 @@ void CarRentalSystem::showAvailableCarsAndReserve(){
     cout<<"Reserved successfully.\n";
 }
 void CarRentalSystem::processReservation(string model){
-    if(!currentUser || currentUser->userRole == GUEST || currentUser->userRole == CUSTOMER ) return;
+    if(!currentUser || currentUser->userRole == GUEST || currentUser->userRole == CUSTOMER ){
+        cout<<"Access Denied!"<<endl;
+        return;
+    }
     
     Car* car = carIndexes.search(model);
     if(car && !car->Reservations->isEmpty()){
@@ -133,11 +158,18 @@ void CarRentalSystem::processReservation(string model){
     }
 }
 void CarRentalSystem::returnCar(string model){
-    if(!currentUser || currentUser->userRole == GUEST || currentUser->userRole == CUSTOMER ) return;
-    
+    if(!currentUser){
+        cout << ">> Error: Please login first.\n";
+        return;
+    }
     Car* car = carIndexes.search(model);
     if(!car || car->status != RENTED){
         cout<< ">> Error: car has not been rented.\n";
+        return;
+    }
+
+    if(car->currentRenter != currentUser->userName && currentUser->userRole != STAFF){
+        cout << "Error: You have not rented this car!\n";
         return;
     }
 
@@ -156,12 +188,12 @@ void CarRentalSystem::returnCar(string model){
         double penalty = daysLate*(car->pricePerDay*2);
         cout<<"days late num: "<<daysLate<<"\n";
         cout<<"penalty: "<< penalty<<"\n";
+        currentUser->balance-=penalty;
     } 
     else{
-        cout<<"Return on time. No fine.\n";
+        cout<<"Return on time, No penalty.\n";
     }
 
-    // Reset
     car->currentRenter = "";
     car->status = AVAILABLE;
     if (!car->Reservations->isEmpty()) {
@@ -169,4 +201,48 @@ void CarRentalSystem::returnCar(string model){
         cout << ">> Status: RESERVED\n";
     }
     cout << "----------------\n";
+}
+
+void CarRentalSystem::promoteUserToStaff(string username){
+    if(!currentUser || currentUser->userRole != MANAGER){
+        cout<<"Access Denied!\n";
+        return;
+    }
+    User* u=table.search(username);
+    if(u==nullptr){
+        cout<<"User not found!\n";
+        return;
+    }
+    if(u->userRole==STAFF || u->userRole==MANAGER){
+        cout<<"User is already Staff/Manager!\n";
+        return;
+    }
+    u->userRole=STAFF;
+    cout<<username<<" promoted to STAFF.\n";
+}
+void CarRentalSystem::Report(){
+    if(!currentUser || currentUser->userRole != MANAGER){
+        cout<<"Access Denied!\n";
+        return;
+    }
+    int totalCars=0;
+    int rentedCars=0;
+    int reservedCars=0;
+    int availableCars=0;
+    Node<Car>* temp=carList.head;
+    while(temp){
+        totalCars++;
+        switch(temp->data->status){
+            case AVAILABLE : availableCars++; break;
+            case RENTED : rentedCars++; break;
+            case RESERVED : reservedCars++; break;
+            default: break;
+        }
+        temp = temp->next;
+    }
+    cout<<"\n### MANAGER REPORT ###\n";
+    cout<<"Total car numbers: "<<totalCars<<endl;
+    cout<<"Available: "<<availableCars<<endl;
+    cout<<"Rented: "<<rentedCars<<endl;
+    cout<<"Reserved: "<<reservedCars<<endl;
 }

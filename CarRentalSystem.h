@@ -27,6 +27,9 @@ public:
 
     void showAvailableCarsAndReserve();
 
+    //Manager works
+    void promoteUserToStaff(string username);
+    void Report();
 
 };
 

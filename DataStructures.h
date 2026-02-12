@@ -5,6 +5,10 @@
 
 using namespace std;
 
+struct Car;
+struct User;
+struct Reservation;
+
 //heap//
 class ReservationQueue{
 private:
@@ -96,7 +100,7 @@ private:
     int hashIndex(string key);
 public:
     hashTable();
-    ~hashTable();
+    //~hashTable();
     void insert(string key , User* user);
     User* search(string key);
 };

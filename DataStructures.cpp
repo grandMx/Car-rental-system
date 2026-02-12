@@ -53,15 +53,17 @@ bool ReservationQueue::isEmpty(){
     return size == 0; 
 }
 Reservation ReservationQueue::pop(){
-    if(size==0) return Reservation({{0,0,0},"",0});
+    if(size==0) return {{0,0,0}, "", 0};
     Reservation prior=arr[0];
     arr[0]=arr[size-1];
     size--;
     downHeap(0);
     return prior;
 }
-Reservation ReservationQueue::prior() {
-    if (size==0) return Reservation({{0,0,0},"",0});
+Reservation ReservationQueue::prior(){
+    if(size==0){
+        return {{0,0,0}, "", 0};
+    }
     return arr[0];
 }
 
@@ -141,10 +143,10 @@ Car* AVLTree::search(string key){
     return search(root,key); 
 }
 Car* AVLTree::search(AVLNode* root,string key){
-    if(root->key==key) return root->carPtr;
-    if (root==nullptr) return nullptr;
-    if(root->key<key) return search(root->right,key);
-    if (key<root->key) return search(root->left, key);
+    if(root==nullptr) return nullptr;
+    if(key==root->key) return root->carPtr;
+    if(key<root->key) return search(root->left, key);
+    return search(root->right, key);
 }
 
 
@@ -169,7 +171,7 @@ void hashTable::insert(string key , User* user){
 User* hashTable::search(string key){
     int index=hashIndex(key);
     hashNode* temp=table[index];
-    while(!temp){
+    while(temp != nullptr){
         if(temp->key == key){
             return temp->userPtr;
         }

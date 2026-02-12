@@ -1,7 +1,7 @@
 #ifndef Entity_H
 #define Entity_H
 #include<string>
-#include "DataStructures.h"
+#include<iostream>
 #define ul unsigned long
 
 enum Role{STAFF,GUEST,CUSTOMER,MANAGER};
@@ -36,7 +36,7 @@ struct Car{
     double pricePerDay;
     CarStatus status;
     ReservationQueue* Reservations; // صف رزرو های مربوط به هر ماشین
-    string currentRenter;
+    std::string currentRenter;
     Date dueReturnDate; // تاریخی که یارو باید ماشین رو تحویل بده
 
     std::string getStatusStr();
